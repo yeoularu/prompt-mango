@@ -19,10 +19,21 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripHorizontalIcon } from 'lucide-react';
 
 export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
   const isPromptListCollapsed = useStore($promptListCollapsed);
   const [collapsed, setCollapsed] = useState(false);
+
+  const collapseAllPrompts = () => {
+    $promptListCollapsed.set(true);
+    setTimeout(() => {
+      $promptListCollapsed.set(false);
+    }, 0);
+  };
+
   const [open, setOpen] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(0);
   const isOverflown = textareaHeight > 64;
@@ -46,6 +57,22 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
     [createdAt]
   );
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: createdAt });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const [isFocused, setIsFocused] = useState(false);
+
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value;
 
@@ -55,13 +82,31 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
   const getCurrentPrompts = () => $currentPromptSet.get().prompts;
 
   return (
-    <div className="relative flex items-stretch">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn('relative flex', isDragging && 'opacity-50')}
+    >
+      <Button
+        variant="outline"
+        className={cn(
+          'absolute inset-x-0 -top-3 z-50 mx-auto hidden h-2 w-fit cursor-grab touch-none',
+          (isFocused || isDragging) && 'flex',
+          isDragging && 'cursor-grabbing'
+        )}
+        onMouseDown={collapseAllPrompts}
+        {...attributes}
+        {...listeners}
+      >
+        <GripHorizontalIcon className="h-4 w-4" />
+      </Button>
+
       <div>
         <Button
           variant="ghost"
           disabled={!isOverflown}
           className="z-50 h-full w-5 items-start rounded-l-none p-0.5 text-primary hover:text-primary"
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={() => setCollapsed((v) => !v)}
         >
           <div
             className={cn(
@@ -88,6 +133,8 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
           if (collapsed) setCollapsed(false);
         }}
         onChange={handleTextareaChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onHeightChange={(height) => setTextareaHeight(height)}
         placeholder={
           getCurrentPrompts().findIndex(({ createdAt: c }) => c === createdAt)
@@ -95,10 +142,11 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
             : 'You are Socrates.'
         }
         className={cn(
-          'peer mx-1 w-full resize-none self-center overflow-hidden rounded-lg border-none bg-background px-4 py-3 text-base caret-primary outline-none',
-          'hover:bg-accent focus:bg-primary/[0.02] focus:outline-1 focus:outline-primary hover:dark:bg-accent/50 focus:dark:bg-accent/25',
+          'peer mx-1 min-h-16 w-full resize-none self-center overflow-hidden rounded-lg border-none bg-background px-4 py-3 text-base caret-primary outline-none',
+          !isDragging &&
+            'hover:bg-accent focus:bg-primary/[0.02] focus:outline-1 focus:outline-primary hover:dark:bg-accent/50 focus:dark:bg-accent/25',
           open && 'bg-destructive/5 dark:bg-destructive/10',
-          collapsed && 'max-h-[4.25rem]'
+          collapsed && 'max-h-16'
         )}
       />
 

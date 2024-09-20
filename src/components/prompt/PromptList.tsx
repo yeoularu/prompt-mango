@@ -10,6 +10,23 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useStore } from '@nanostores/react';
 import { useImpressionRef } from '@toss/impression-area';
 
+import { $currentPromptSet } from '@/stores/currentPromptSet';
+
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  TouchSensor,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+
 export default function PromptList() {
   const ca = useStore($currentPromptSetCreatedAt);
   const createdAtArr = useStore($currentPromptsCreateAt);
@@ -32,23 +49,66 @@ export default function PromptList() {
     ? createdAtArr.slice(0, MAX)
     : createdAtArr;
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const promptSet = $currentPromptSet.get();
+    const prompts = promptSet.prompts;
+
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = prompts.findIndex((p) => p.createdAt === active.id);
+      const newIndex = prompts.findIndex((p) => p.createdAt === over?.id);
+
+      const newPrompts = arrayMove(prompts, oldIndex, newIndex);
+
+      $currentPromptSet.set({
+        ...promptSet,
+        prompts: newPrompts,
+      });
+    }
+  };
+
   return (
     <div ref={impressionRef}>
-      <section key={ca} ref={parent} className="flex w-full flex-col gap-2">
-        {visiblePrompts.map((c) => (
-          <Prompt key={c} createdAt={c} />
-        ))}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={createdAtArr}
+          strategy={verticalListSortingStrategy}
+        >
+          <section key={ca} ref={parent} className="flex w-full flex-col gap-2">
+            {visiblePrompts.map((c) => (
+              <Prompt key={c} createdAt={c} />
+            ))}
 
-        {isCollapsed && createdAtArr.length > MAX && (
-          <Button
-            className="w-full text-primary hover:text-primary"
-            onClick={() => $promptListCollapsed.set(false)}
-            variant="ghost"
-          >
-            Show {createdAtArr.length - MAX} more
-          </Button>
-        )}
-      </section>
+            {isCollapsed && createdAtArr.length > MAX && (
+              <Button
+                className="w-full text-primary hover:text-primary"
+                onClick={() => $promptListCollapsed.set(false)}
+                variant="ghost"
+              >
+                Show {createdAtArr.length - MAX} more
+              </Button>
+            )}
+          </section>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
