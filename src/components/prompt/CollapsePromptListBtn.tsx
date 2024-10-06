@@ -1,3 +1,4 @@
+import { collapseAllPrompts } from '@/stores/collapsedPrompts';
 import { Button } from '../ui/button';
 import { $promptListCollapsed } from '@/stores/promptListCollapsed';
 import { useStore } from '@nanostores/react';
@@ -10,7 +11,13 @@ export default function CollapsePromptListBtn() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => $promptListCollapsed.set(!isCollapsed)}
+      onClick={() => {
+        if (!isCollapsed) {
+          collapseAllPrompts();
+        }
+
+        $promptListCollapsed.set(!isCollapsed);
+      }}
     >
       {isCollapsed ? (
         <ChevronsUpDownIcon className="w-4" />
