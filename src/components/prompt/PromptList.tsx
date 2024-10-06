@@ -1,7 +1,7 @@
 import { Button } from '../ui/button';
 import Prompt from './Prompt';
 import {
-  $currentPromptsCreateAt,
+  $currentPromptsCreatedAt,
   $currentPromptSetCreatedAt,
 } from '@/stores/currentPromptSet';
 import { $isPromptListInView } from '@/stores/observers';
@@ -29,7 +29,7 @@ import {
 
 export default function PromptList() {
   const ca = useStore($currentPromptSetCreatedAt);
-  const createdAtArr = useStore($currentPromptsCreateAt);
+  const createdAtArr = useStore($currentPromptsCreatedAt);
   const isCollapsed = useStore($promptListCollapsed);
 
   const [parent] = useAutoAnimate();
