@@ -28,6 +28,8 @@ export default function AddPromptBtn({
       prompts: [...prompts, { createdAt: dayjs().valueOf(), prompt }],
     });
 
+    onClick && onClick();
+
     if (cursorStart !== -1) {
       $promptListCollapsed.set(false);
       const id = $currentPromptSet.get().prompts.at(-1)?.createdAt.toString();
@@ -38,11 +40,10 @@ export default function AddPromptBtn({
         if (textarea) {
           textarea.focus();
           textarea.setSelectionRange(cursorStart, cursorStart);
+          textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 0);
     }
-
-    onClick && onClick();
   };
 
   return (

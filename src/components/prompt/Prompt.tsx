@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { $currentPromptSet } from '@/stores/currentPromptSet';
-import { $promptListCollapsed } from '@/stores/promptListCollapsed';
 import { useStore } from '@nanostores/react';
 import { debounce } from 'es-toolkit';
 import {
@@ -17,30 +16,29 @@ import {
   ChevronsDownUpIcon,
   ChevronsUpDownIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripHorizontalIcon } from 'lucide-react';
+import {
+  $collapsedPromptsCreatedAt,
+  collapseAllPrompts,
+} from '@/stores/collapsedPrompts';
 
 export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
-  const isPromptListCollapsed = useStore($promptListCollapsed);
-  const [collapsed, setCollapsed] = useState(false);
-
-  const collapseAllPrompts = () => {
-    $promptListCollapsed.set(true);
-    setTimeout(() => {
-      $promptListCollapsed.set(false);
-    }, 0);
-  };
+  const collapsedPromptsCreatedAt = useStore($collapsedPromptsCreatedAt);
+  const collapsed = collapsedPromptsCreatedAt.includes(createdAt);
+  const setCollapsed = (bool: boolean) =>
+    $collapsedPromptsCreatedAt.set(
+      bool
+        ? [...collapsedPromptsCreatedAt, createdAt]
+        : collapsedPromptsCreatedAt.filter((c) => c !== createdAt)
+    );
 
   const [open, setOpen] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(0);
   const isOverflown = textareaHeight > 64;
-
-  useEffect(() => {
-    if (isPromptListCollapsed) setCollapsed(true);
-  }, [isPromptListCollapsed]);
 
   const debouncedSetCurrentPrompt = useMemo(
     () =>
@@ -85,7 +83,7 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
     <div
       ref={setNodeRef}
       style={style}
-      className={cn('relative flex', isDragging && 'opacity-50')}
+      className={cn('relative flex', isDragging && 'z-50 opacity-50')}
     >
       <Button
         variant="outline"
@@ -95,6 +93,7 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
           isDragging && 'cursor-grabbing'
         )}
         onMouseDown={collapseAllPrompts}
+        onTouchStartCapture={collapseAllPrompts}
         {...attributes}
         {...listeners}
       >
@@ -106,7 +105,7 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
           variant="ghost"
           disabled={!isOverflown}
           className="z-50 h-full w-5 items-start rounded-l-none p-0.5 text-primary hover:text-primary"
-          onClick={() => setCollapsed((v) => !v)}
+          onClick={() => setCollapsed(!collapsed)}
         >
           <div
             className={cn(
@@ -173,8 +172,8 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
       />
 
       {collapsed && isOverflown && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-8 items-end bg-gradient-to-b from-transparent to-background">
-          <ChevronDownIcon className="mx-auto mt-auto h-4 w-4 rounded-full bg-background text-primary dark:bg-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 -bottom-1 flex h-8 items-end bg-gradient-to-b from-transparent to-background">
+          <ChevronDownIcon className="mx-auto mb-1 mt-auto h-4 w-4 rounded-full bg-background text-primary dark:bg-transparent" />
         </div>
       )}
     </div>

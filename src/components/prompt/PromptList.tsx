@@ -55,12 +55,7 @@ export default function PromptList() {
         distance: 5,
       },
     }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
+    useSensor(TouchSensor)
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
