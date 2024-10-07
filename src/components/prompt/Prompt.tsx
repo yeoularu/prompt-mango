@@ -35,7 +35,7 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
   const setCollapsed = (bool: boolean) =>
     $collapsedPromptsCreatedAt.set(
       bool
-        ? [...collapsedPromptsCreatedAt, createdAt]
+        ? Array.from(new Set([...collapsedPromptsCreatedAt, createdAt]))
         : collapsedPromptsCreatedAt.filter((c) => c !== createdAt)
     );
 
@@ -83,6 +83,7 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
   const getCurrentPrompts = () => $currentPromptSet.get().prompts;
 
   const [isDragPossible, setIsDragPossible] = useState(false);
+
   useEffect(() => {
     if (!isFocused) return;
     setIsDragPossible(
@@ -94,6 +95,8 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
   const handleBeforeDragStart = () => {
     collapseAllPrompts();
   };
+
+  console.log(collapsedPromptsCreatedAt, $currentPromptsCreatedAt.get());
 
   return (
     <div
@@ -162,7 +165,9 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
         onChange={handleTextareaChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => {
-          !isOverflown && setCollapsed(true);
+          if (!isOverflown) {
+            setCollapsed(true);
+          }
           setIsFocused(false);
         }}
         onHeightChange={(height) => setTextareaHeight(height)}
