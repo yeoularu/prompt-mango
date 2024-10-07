@@ -6,7 +6,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { $locale, type Locale } from '@/stores/locale';
-import { LanguagesIcon } from 'lucide-react';
+import { useStore } from '@nanostores/react';
+import { CheckIcon, LanguagesIcon } from 'lucide-react';
 
 export function LocaleDropdownMenu() {
   return (
@@ -30,6 +31,12 @@ function MenuItem({
   locale,
   name,
 }: Readonly<{ locale: Locale; name: string }>) {
+  const currentLocale = useStore($locale);
   const setLocale = () => $locale.set(locale);
-  return <DropdownMenuItem onClick={setLocale}>{name}</DropdownMenuItem>;
+  return (
+    <DropdownMenuItem onClick={setLocale}>
+      {currentLocale === locale && <CheckIcon className="mr-1 h-4 w-4" />}
+      {name}
+    </DropdownMenuItem>
+  );
 }
