@@ -86,17 +86,18 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
 
   useEffect(() => {
     if (!isFocused) return;
+    const currentPromptsLength = $currentPromptsCreatedAt.get().length;
+    const collapsedLength = collapsedPromptsCreatedAt.length;
+
     setIsDragPossible(
-      collapsedPromptsCreatedAt.length + 1 ===
-        $currentPromptsCreatedAt.get().length
+      collapsedLength + 1 === currentPromptsLength ||
+        collapsedLength === currentPromptsLength
     );
   }, [collapsedPromptsCreatedAt.length, isFocused]);
 
   const handleBeforeDragStart = () => {
     collapseAllPrompts();
   };
-
-  console.log(collapsedPromptsCreatedAt, $currentPromptsCreatedAt.get());
 
   return (
     <div
@@ -113,7 +114,9 @@ export default function Prompt({ createdAt }: Readonly<{ createdAt: number }>) {
             isDragging && 'cursor-grabbing'
           )}
           onMouseDown={handleBeforeDragStart}
-          onTouchStartCapture={handleBeforeDragStart}
+          onTouchStartCapture={() => {
+            setCollapsed(true);
+          }}
           {...attributes}
           {...listeners}
         >
