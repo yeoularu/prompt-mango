@@ -26,7 +26,7 @@ export const Route = createFileRoute('/prompts')({
         <SheetTrigger className="mr-auto md:hidden">
           <Button variant="ghost" className="gap-2">
             <ArrowRightFromLineIcon className="w-4" />
-            Prompts
+            All Prompts
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
@@ -61,7 +61,7 @@ function PromptsNavList({ isSheet = false }) {
                 params={{ category: key, name: p.name }}
               >
                 {isSheet ? (
-                  <SheetClose asChild>
+                  <SheetClose>
                     <PromptLinkButton category={key} name={p.name} />
                   </SheetClose>
                 ) : (
