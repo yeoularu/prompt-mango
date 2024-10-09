@@ -116,15 +116,16 @@ export function CommandMenu() {
                         debouncedToggleOpen();
                         router.navigate({ to: '/' });
                       }}
-                      className="absolute right-0 top-0 m-1 w-fit border-none bg-transparent hover:bg-foreground/10"
+                      className="absolute right-0 top-0 m-1 w-fit border-none bg-transparent px-2 hover:bg-foreground/10"
                     >
                       <kbd
                         className={cn(
                           'pointer-events-none hidden h-5 select-none items-center gap-1 px-1.5 font-mono',
-                          'group-data-[selected="true"]:block'
+                          'group-data-[selected="true"]:sm:flex'
                         )}
                       >
-                        ⌘ ⏎
+                        <span>⌘</span>
+                        <span>⏎</span>
                       </kbd>
                       <PlusIcon className="w-4" />
                     </AddPromptBtn>

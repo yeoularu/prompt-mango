@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { $currentPromptSet } from '@/stores/currentPromptSet';
 import { $promptListCollapsed } from '@/stores/promptListCollapsed';
@@ -51,9 +52,8 @@ export default function AddPromptBtn({
   return (
     <Button
       id={id}
-      className={className}
+      className={cn('h-9 w-9', className)}
       variant="outline"
-      size="icon"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
