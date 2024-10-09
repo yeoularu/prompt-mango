@@ -8,10 +8,13 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { data, exceptionStr } from '@/data/data';
+import { cn } from '@/lib/utils';
 import { $commandOpen } from '@/stores/commandOpen';
 import { $locale } from '@/stores/locale';
 import { useStore } from '@nanostores/react';
 import { Link, useRouter } from '@tanstack/react-router';
+import { debounce } from 'es-toolkit';
+import { PlusIcon } from 'lucide-react';
 import { Fragment, useEffect } from 'react';
 
 export function CommandMenu() {
@@ -19,6 +22,8 @@ export function CommandMenu() {
   const toggleOpen = () => {
     $commandOpen.set(!open);
   };
+
+  const debouncedToggleOpen = debounce(toggleOpen, 100);
 
   const router = useRouter();
 
@@ -51,17 +56,44 @@ export function CommandMenu() {
               const cursorStart = split[0].length;
 
               return (
-                <Link to="/prompts/$category/$name" params={{ category, name }}>
+                <Link to="/prompts/$category/$name" params={{ name, category }}>
                   <CommandItem
                     key={prompt.en}
                     keywords={keywords}
                     onSelect={() => {
-                      router.navigate({
-                        to: '/prompts/$category/$name',
-                        params: { category, name },
-                      });
-                      toggleOpen();
+                      const handleKeyDown = (e: KeyboardEvent) => {
+                        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                          document.getElementById(name)?.click();
+                          router.navigate({ to: '/' });
+                        } else if (e.key === 'Enter') {
+                          router.navigate({
+                            to: `/prompts/${category}/${name}`,
+                            params: { category, name },
+                          });
+                        }
+
+                        document.removeEventListener('keydown', handleKeyDown);
+                      };
+
+                      const handleClickEnd = () => {
+                        router.navigate({
+                          to: `/prompts/${category}/${name}`,
+                          params: { category, name },
+                        });
+                        document.removeEventListener('keydown', handleKeyDown);
+                        document.removeEventListener('mouseup', handleClickEnd);
+                        document.removeEventListener(
+                          'touchend',
+                          handleClickEnd
+                        );
+                      };
+
+                      document.addEventListener('mouseup', handleClickEnd);
+                      document.addEventListener('touchend', handleClickEnd);
+                      document.addEventListener('keydown', handleKeyDown);
+                      debouncedToggleOpen();
                     }}
+                    className="group"
                   >
                     <div className="flex flex-col gap-2">
                       <h3 className="font-mono">{name}</h3>
@@ -77,11 +109,25 @@ export function CommandMenu() {
                       </p>
                     </div>
                     <AddPromptBtn
+                      id={name}
                       prompt={joined}
                       cursorStart={cursorStart}
-                      onClick={toggleOpen}
-                      className="absolute right-0 top-0 m-1 border-none bg-transparent hover:bg-foreground/10"
-                    />
+                      onClick={() => {
+                        debouncedToggleOpen();
+                        router.navigate({ to: '/' });
+                      }}
+                      className="absolute right-0 top-0 m-1 w-fit border-none bg-transparent hover:bg-foreground/10"
+                    >
+                      <kbd
+                        className={cn(
+                          'pointer-events-none hidden h-5 select-none items-center gap-1 px-1.5 font-mono',
+                          'group-data-[selected="true"]:block'
+                        )}
+                      >
+                        ⌘ ⏎
+                      </kbd>
+                      <PlusIcon className="w-4" />
+                    </AddPromptBtn>
                   </CommandItem>
                 </Link>
               );

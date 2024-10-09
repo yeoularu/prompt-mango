@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { PlusIcon } from 'lucide-react';
 
 type AddPromptBtnProps = {
+  id?: string;
   className?: string;
   prompt?: string;
   cursorStart?: number;
@@ -13,6 +14,7 @@ type AddPromptBtnProps = {
 };
 
 export default function AddPromptBtn({
+  id,
   className,
   prompt = '',
   cursorStart = -1,
@@ -42,14 +44,15 @@ export default function AddPromptBtn({
           textarea.setSelectionRange(cursorStart, cursorStart);
           textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 0);
+      }, 100);
     }
   };
 
   return (
     <Button
-      variant="outline"
+      id={id}
       className={className}
+      variant="outline"
       size="icon"
       onClick={(e) => {
         e.preventDefault();
