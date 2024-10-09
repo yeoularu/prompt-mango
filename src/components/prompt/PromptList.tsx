@@ -32,7 +32,7 @@ export default function PromptList() {
   const createdAtArr = useStore($currentPromptsCreatedAt);
   const isCollapsed = useStore($promptListCollapsed);
 
-  const [parent] = useAutoAnimate();
+  const [parent, enableAnimations] = useAutoAnimate();
 
   const impressionRef = useImpressionRef({
     onImpressionStart: () => {
@@ -59,6 +59,11 @@ export default function PromptList() {
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
+    enableAnimations(false);
+    setTimeout(() => {
+      enableAnimations(true);
+    });
+
     const promptSet = $currentPromptSet.get();
     const prompts = promptSet.prompts;
 
