@@ -72,7 +72,7 @@ export function CommandMenu() {
                           });
                         }
 
-                        document.removeEventListener('keydown', handleKeyDown);
+                        removeListeners();
                       };
 
                       const handleClickEnd = () => {
@@ -80,17 +80,23 @@ export function CommandMenu() {
                           to: `/prompts/${category}/${name}`,
                           params: { category, name },
                         });
-                        document.removeEventListener('keydown', handleKeyDown);
+
+                        removeListeners();
+                      };
+
+                      const removeListeners = () => {
                         document.removeEventListener('mouseup', handleClickEnd);
                         document.removeEventListener(
                           'touchend',
                           handleClickEnd
                         );
+                        document.removeEventListener('keydown', handleKeyDown);
                       };
 
                       document.addEventListener('mouseup', handleClickEnd);
                       document.addEventListener('touchend', handleClickEnd);
                       document.addEventListener('keydown', handleKeyDown);
+
                       debouncedToggleOpen();
                     }}
                     className="group"
