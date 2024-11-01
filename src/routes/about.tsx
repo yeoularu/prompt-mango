@@ -32,7 +32,7 @@ const ko = `"Prompt Mango"는 LLM 프롬프트를 구성하고 관리하는 웹 
 자주 쓰는 프롬프트를 클릭 또는 키보드로 접근해 프롬프트를 구성할 수 있습니다. 
 키보드 단축키: 
 - 프롬프트 검색 창 열기/닫기: Ctrl/Cmd + K
-- (검색 창에서)해당 프롬프트를 블록으로 편집기에 추가: Shift + Enter
+- (검색 창에서)해당 프롬프트를 블록으로 편집기에 추가: Ctrl/Cmd + Enter
 
 편집기로 가져올 때 필요한 위치에 커서가 자동으로 이동*합니다.
 
@@ -50,7 +50,7 @@ Quickly configure, copy and use prompts. All changes are automatically saved to 
 You can configure prompts by clicking or keyboard access to your favorite prompts.
 Keyboard shortcuts:
 - Ctrl/Cmd + K Open/close the prompt search bar: Ctrl/Cmd + K
-- Add that prompt (from the search bar) to the editor as a block: Shift + Enter
+- Add that prompt (from the search bar) to the editor as a block: Ctrl/Cmd + Enter
 
 The cursor will automatically move* to the required location when imported into the editor.
 
